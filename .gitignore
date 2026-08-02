@@ -1,0 +1,17 @@
+# Dependencies
+node_modules/
+
+# Environment — credentials live in each app's OS keychain, never here
+.env
+.env.local
+.env.*.local
+
+# Supabase local tooling caches
+supabase/.temp/
+
+# Test artifacts
+coverage/
+
+# Logs
+*.log
+npm-debug.log*

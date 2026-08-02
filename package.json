@@ -1,0 +1,47 @@
+{
+  "name": "@orun/core",
+  "version": "0.1.0",
+  "description": "Núcleo compartilhado do ecossistema Orun: engine de sync SQLite<->Supabase e controle de satélites (desktop, mobile, TV, Shield)",
+  "license": "UNLICENSED",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "typecheck:edge-logic": "tsc --noEmit -p supabase/functions/ai-relay/tsconfig.json"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.0",
+    "zod": "^4.4.3"
+  },
+  "peerDependencies": {
+    "better-sqlite3": ">=11.0.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^22.0.0",
+    "better-sqlite3": "^13.0.0",
+    "tsup": "^8.3.5",
+    "typescript": "^5.5.4",
+    "vitest": "^4.1.10"
+  },
+  "allowScripts": {
+    "better-sqlite3@13.0.2": true,
+    "esbuild@0.27.7": true
+  }
+}
