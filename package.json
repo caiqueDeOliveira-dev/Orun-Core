@@ -1,6 +1,6 @@
 {
   "name": "@orun/core",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Núcleo compartilhado do ecossistema Orun: engine de sync SQLite<->Supabase e controle de satélites (desktop, mobile, TV, Shield)",
   "license": "UNLICENSED",
   "private": true,

@@ -5,7 +5,21 @@
 -- endereçados ao próprio tipo — cegos entre si por design (nunca consultam
 -- as linhas um do outro).
 --
+-- AUTOCONTIDA: cria a função set_updated_at() se ainda não existir e ignora
+-- falhas do Realtime (opcional), para rodar sozinha em QUALQUER banco do
+-- ecossistema — inclusive onde as migrations 0001–0006 do Orun-Core não
+-- foram aplicadas. Idempotente: pode ser re-executada sem erro.
+--
 -- Só roda no Supabase; nada aqui altera o schema SQLite local dos apps.
+
+-- Função de updated_at automático (idempotente; mesmo corpo de 0001_schema.sql).
+create or replace function set_updated_at()
+returns trigger as $$
+begin
+  new.updated_at = now();
+  return new;
+end;
+$$ language plpgsql;
 
 -- Registro + heartbeat de todos os dispositivos do ecossistema.
 create table if not exists devices (
@@ -40,9 +54,11 @@ create table if not exists commands (
 
 create index if not exists idx_commands_pending on commands (target, status, created_at);
 
--- updated_at auto-touch (mesma função set_updated_at() de 0001_schema.sql).
+-- updated_at auto-touch (drop + create para ser idempotente).
+drop trigger if exists trg_devices_updated_at on devices;
 create trigger trg_devices_updated_at before update on devices
   for each row execute function set_updated_at();
+drop trigger if exists trg_commands_updated_at on commands;
 create trigger trg_commands_updated_at before update on commands
   for each row execute function set_updated_at();
 
@@ -52,13 +68,22 @@ create trigger trg_commands_updated_at before update on commands
 alter table devices enable row level security;
 alter table commands enable row level security;
 
+drop policy if exists "authenticated_full_access" on devices;
 create policy "authenticated_full_access" on devices
   for all to authenticated using (true) with check (true);
+drop policy if exists "authenticated_full_access" on commands;
 create policy "authenticated_full_access" on commands
   for all to authenticated using (true) with check (true);
 
--- Realtime: publica as duas tabelas para que hubs reajam a heartbeats de
--- satélites e a acks de comandos por websocket (SyncService.enableRealtime /
--- assinatura de canal no lado do app).
-alter publication supabase_realtime add table devices;
-alter publication supabase_realtime add table commands;
+-- Realtime (opcional): publica as duas tabelas para hubs reajarem a heartbeats
+-- e a acks por websocket. Falhas são ignoradas — o polling do SyncService
+-- continua cobrindo mesmo sem Realtime habilitado no projeto.
+do $$
+begin
+  begin
+    alter publication supabase_realtime add table devices;
+    alter publication supabase_realtime add table commands;
+  exception when others then
+    null;
+  end;
+end $$;
