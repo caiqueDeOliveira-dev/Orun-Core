@@ -1,6 +1,6 @@
 {
   "name": "@orun/core",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Núcleo compartilhado do ecossistema Orun: engine de sync SQLite<->Supabase e controle de satélites (desktop, mobile, TV, Shield)",
   "license": "UNLICENSED",
   "private": true,
@@ -26,6 +26,7 @@
     "typecheck:edge-logic": "tsc --noEmit -p supabase/functions/ai-relay/tsconfig.json"
   },
   "dependencies": {
+    "@supabase/realtime-js": "^2.10.0",
     "@supabase/supabase-js": "^2.45.0",
     "zod": "^4.4.3"
   },

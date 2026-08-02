@@ -1,4 +1,5 @@
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
+import type { RealtimeClientOptions } from "@supabase/realtime-js";
 
 /**
  * Supabase client for Orun OS's hybrid sync.
@@ -14,12 +15,21 @@ import { createClient, SupabaseClient } from "@supabase/supabase-js";
 export interface SupabaseCredentials {
   url: string;
   serviceRoleKey: string;
+  /**
+   * WebSocket implementation (ex.: `require("ws")`) para runtimes sem
+   * WebSocket nativo (Node < 22, Electron main). O SupabaseClient instancia
+   * o RealtimeClient na criação e falha se WebSocket não existir — mesmo que
+   * nenhum canal realtime seja usado (o SatelliteController é REST-only).
+   */
+  transport?: RealtimeClientOptions["transport"];
 }
 
 let client: SupabaseClient | null = null;
 
 export function getSupabaseClient(creds: SupabaseCredentials): SupabaseClient {
   if (client) return client;
+
+  const realtime = creds.transport ? { transport: creds.transport } : undefined;
 
   client = createClient(creds.url, creds.serviceRoleKey, {
     auth: {
@@ -29,6 +39,7 @@ export function getSupabaseClient(creds: SupabaseCredentials): SupabaseClient {
     db: {
       schema: "public",
     },
+    realtime,
   });
 
   return client;

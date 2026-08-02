@@ -1,5 +1,6 @@
 import Database from 'better-sqlite3';
 import { SupabaseClient } from '@supabase/supabase-js';
+import { RealtimeClientOptions } from '@supabase/realtime-js';
 import { z } from 'zod';
 
 /** Tipos de dispositivo no ecossistema Orun (modelo hub-and-spoke). */
@@ -120,6 +121,13 @@ declare function backfill(db: Database.Database, supabase: SupabaseClient, onPro
 interface SupabaseCredentials {
     url: string;
     serviceRoleKey: string;
+    /**
+     * WebSocket implementation (ex.: `require("ws")`) para runtimes sem
+     * WebSocket nativo (Node < 22, Electron main). O SupabaseClient instancia
+     * o RealtimeClient na criação e falha se WebSocket não existir — mesmo que
+     * nenhum canal realtime seja usado (o SatelliteController é REST-only).
+     */
+    transport?: RealtimeClientOptions["transport"];
 }
 declare function getSupabaseClient(creds: SupabaseCredentials): SupabaseClient;
 /** Call once at app startup, after reading credentials from the keychain. */

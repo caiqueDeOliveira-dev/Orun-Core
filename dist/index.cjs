@@ -82,6 +82,7 @@ function sanitizeForSupabase(row) {
 var client = null;
 function getSupabaseClient(creds) {
   if (client) return client;
+  const realtime = creds.transport ? { transport: creds.transport } : void 0;
   client = supabaseJs.createClient(creds.url, creds.serviceRoleKey, {
     auth: {
       persistSession: false,
@@ -90,7 +91,8 @@ function getSupabaseClient(creds) {
     },
     db: {
       schema: "public"
-    }
+    },
+    realtime
   });
   return client;
 }
